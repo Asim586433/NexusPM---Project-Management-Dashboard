@@ -34,6 +34,7 @@
             background-color: var(--background);
             color: var(--text-primary);
             line-height: 1.6;
+            overflow-x: hidden;
         }
 
         .container {
@@ -51,6 +52,7 @@
             width: 250px;
             height: 100vh;
             z-index: 100;
+            overflow-y: auto;
         }
 
         .logo {
@@ -86,6 +88,7 @@
             cursor: pointer;
             transition: all 0.2s;
             color: var(--text-secondary);
+            text-decoration: none;
         }
 
         .nav-item:hover {
@@ -206,6 +209,7 @@
             box-shadow: var(--shadow);
             padding: 1.5rem;
             transition: transform 0.2s;
+            cursor: pointer;
         }
 
         .project-card:hover {
@@ -338,6 +342,117 @@
             font-size: 0.875rem;
         }
 
+        /* Page Content */
+        .page-content {
+            display: none;
+        }
+
+        .page-content.active {
+            display: block;
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Risk Matrix */
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .risk-cell {
+            padding: 1rem;
+            text-align: center;
+            border-radius: var(--radius);
+            font-size: 0.875rem;
+        }
+
+        .risk-low {
+            background-color: #ECFDF5;
+            color: var(--secondary);
+        }
+
+        .risk-medium {
+            background-color: #FEF3C7;
+            color: var(--warning);
+        }
+
+        .risk-high {
+            background-color: #FEE2E2;
+            color: var(--danger);
+        }
+
+        /* Task List */
+        .task-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .task-item:last-child {
+            border-bottom: none;
+        }
+
+        .task-checkbox {
+            margin-right: 1rem;
+        }
+
+        .task-content {
+            flex: 1;
+        }
+
+        .task-title {
+            font-weight: 500;
+        }
+
+        .task-due {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
         /* Responsive Design */
         @media (max-width: 1024px) {
             .dashboard-grid {
@@ -352,6 +467,11 @@
             
             .sidebar {
                 display: none;
+                width: 100%;
+            }
+            
+            .sidebar.active {
+                display: block;
             }
             
             .main-content {
@@ -365,174 +485,580 @@
             .charts-grid {
                 grid-template-columns: 1fr;
             }
+
+            .menu-toggle {
+                display: block;
+                position: fixed;
+                top: 1rem;
+                left: 1rem;
+                z-index: 1000;
+                background: var(--primary);
+                color: white;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+            }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background-color: var(--surface);
+            border-radius: var(--radius);
+            padding: 2rem;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
+    <div class="menu-toggle" id="menuToggle">☰</div>
+
     <div class="container">
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="logo">
                 <div class="logo-icon">N</div>
                 <div class="logo-text">NexusPM</div>
             </div>
             
-            <div class="nav-item active">
+            <a href="#dashboard" class="nav-item active" data-page="dashboard">
                 <div class="nav-icon">📊</div>
                 <div>Dashboard</div>
-            </div>
-            <div class="nav-item">
+            </a>
+            <a href="#projects" class="nav-item" data-page="projects">
                 <div class="nav-icon">📅</div>
                 <div>Projects</div>
-            </div>
-            <div class="nav-item">
+            </a>
+            <a href="#tasks" class="nav-item" data-page="tasks">
                 <div class="nav-icon">✅</div>
                 <div>Tasks</div>
-            </div>
-            <div class="nav-item">
+            </a>
+            <a href="#timeline" class="nav-item" data-page="timeline">
                 <div class="nav-icon">📈</div>
                 <div>Timeline</div>
-            </div>
-            <div class="nav-item">
+            </a>
+            <a href="#risks" class="nav-item" data-page="risks">
                 <div class="nav-icon">⚠️</div>
                 <div>Risks</div>
-            </div>
-            <div class="nav-item">
+            </a>
+            <a href="#team" class="nav-item" data-page="team">
                 <div class="nav-icon">👥</div>
                 <div>Team</div>
-            </div>
-            <div class="nav-item">
+            </a>
+            <a href="#settings" class="nav-item" data-page="settings">
                 <div class="nav-icon">⚙️</div>
                 <div>Settings</div>
-            </div>
+            </a>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
             <div class="header">
-                <h1 class="page-title">Project Dashboard</h1>
+                <h1 class="page-title" id="pageTitle">Project Dashboard</h1>
                 <div class="user-profile">
                     <div>Hello, Alex</div>
                     <div class="avatar">A</div>
                 </div>
             </div>
 
-            <!-- Stats Overview -->
-            <div class="dashboard-grid">
-                <div class="card stat-card">
-                    <div class="stat-label">Active Projects</div>
-                    <div class="stat-value">12</div>
-                    <div class="stat-change positive">+2 from last week ↗</div>
+            <!-- Dashboard Page -->
+            <div class="page-content active" id="dashboard">
+                <!-- Stats Overview -->
+                <div class="dashboard-grid">
+                    <div class="card stat-card">
+                        <div class="stat-label">Active Projects</div>
+                        <div class="stat-value">12</div>
+                        <div class="stat-change positive">+2 from last week ↗</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-label">Completed Tasks</div>
+                        <div class="stat-value">84</div>
+                        <div class="stat-change positive">+12% from last week ↗</div>
+                    </div>
+                    <div class="card stat-card">
+                        <div class="stat-label">Team Capacity</div>
+                        <div class="stat-value">78%</div>
+                        <div class="stat-change negative">-5% from last week ↘</div>
+                    </div>
                 </div>
-                <div class="card stat-card">
-                    <div class="stat-label">Completed Tasks</div>
-                    <div class="stat-value">84</div>
-                    <div class="stat-change positive">+12% from last week ↗</div>
+
+                <!-- Projects Section -->
+                <h2 class="section-title">Recent Projects</h2>
+                <div class="projects-grid">
+                    <div class="project-card" data-project="website-redesign">
+                        <div class="project-header">
+                            <h3 class="project-title">Website Redesign</h3>
+                            <div class="project-status status-progress">In Progress</div>
+                        </div>
+                        <p>Redesign of company website with improved UX and modern design system</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-70"></div>
+                        </div>
+                        <div class="project-dates">
+                            <div>Start: Jun 15, 2023</div>
+                            <div>End: Sep 30, 2023</div>
+                        </div>
+                    </div>
+                    <div class="project-card" data-project="mobile-app">
+                        <div class="project-header">
+                            <h3 class="project-title">Mobile App Development</h3>
+                            <div class="project-status status-planning">Planning</div>
+                        </div>
+                        <p>Development of a cross-platform mobile application for customer engagement</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-45"></div>
+                        </div>
+                        <div class="project-dates">
+                            <div>Start: Aug 1, 2023</div>
+                            <div>End: Dec 15, 2023</div>
+                        </div>
+                    </div>
+                    <div class="project-card" data-project="marketing-campaign">
+                        <div class="project-header">
+                            <h3 class="project-title">Q3 Marketing Campaign</h3>
+                            <div class="project-status status-completed">Completed</div>
+                        </div>
+                        <p>Summer marketing initiative to increase brand awareness and leads</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill progress-90"></div>
+                        </div>
+                        <div class="project-dates">
+                            <div>Start: May 1, 2023</div>
+                            <div>End: Jul 31, 2023</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="card stat-card">
-                    <div class="stat-label">Team Capacity</div>
-                    <div class="stat-value">78%</div>
-                    <div class="stat-change negative">-5% from last week ↘</div>
+
+                <!-- Charts Section -->
+                <h2 class="section-title">Project Analytics</h2>
+                <div class="charts-grid">
+                    <div class="card">
+                        <h3>Project Timeline</h3>
+                        <div class="chart-container">
+                            <canvas id="timelineChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h3>Risk Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="riskChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <h2 class="section-title">Recent Activity</h2>
+                <div class="activity-list">
+                    <div class="activity-item">
+                        <div class="activity-icon">✅</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Task completed: Create wireframes for dashboard</div>
+                            <div class="activity-time">2 hours ago • by Michael Chen</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">📝</div>
+                        <div class="activity-content">
+                            <div class="activity-title">New comment on Website Redesign project</div>
+                            <div class="activity-time">5 hours ago • by Sarah Johnson</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">⚠️</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Risk identified: Potential delay in API integration</div>
+                            <div class="activity-time">Yesterday • by David Wilson</div>
+                        </div>
+                    </div>
+                    <div class="activity-item">
+                        <div class="activity-icon">📊</div>
+                        <div class="activity-content">
+                            <div class="activity-title">Progress report generated for Q3 Marketing Campaign</div>
+                            <div class="activity-time">2 days ago • System</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Projects Section -->
-            <h2 class="section-title">Recent Projects</h2>
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3 class="project-title">Website Redesign</h3>
-                        <div class="project-status status-progress">In Progress</div>
-                    </div>
-                    <p>Redesign of company website with improved UX and modern design system</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill progress-70"></div>
-                    </div>
-                    <div class="project-dates">
-                        <div>Start: Jun 15, 2023</div>
-                        <div>End: Sep 30, 2023</div>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3 class="project-title">Mobile App Development</h3>
-                        <div class="project-status status-planning">Planning</div>
-                    </div>
-                    <p>Development of a cross-platform mobile application for customer engagement</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill progress-45"></div>
-                    </div>
-                    <div class="project-dates">
-                        <div>Start: Aug 1, 2023</div>
-                        <div>End: Dec 15, 2023</div>
-                    </div>
-                </div>
-                <div class="project-card">
-                    <div class="project-header">
-                        <h3 class="project-title">Q3 Marketing Campaign</h3>
-                        <div class="project-status status-completed">Completed</div>
-                    </div>
-                    <p>Summer marketing initiative to increase brand awareness and leads</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill progress-90"></div>
-                    </div>
-                    <div class="project-dates">
-                        <div>Start: May 1, 2023</div>
-                        <div>End: Jul 31, 2023</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Charts Section -->
-            <h2 class="section-title">Project Analytics</h2>
-            <div class="charts-grid">
+            <!-- Projects Page -->
+            <div class="page-content" id="projects">
                 <div class="card">
-                    <h3>Project Timeline</h3>
-                    <div class="chart-container">
-                        <canvas id="timelineChart"></canvas>
-                    </div>
-                </div>
-                <div class="card">
-                    <h3>Risk Distribution</h3>
-                    <div class="chart-container">
-                        <canvas id="riskChart"></canvas>
+                    <h2 class="section-title">All Projects</h2>
+                    <button class="btn btn-primary" id="newProjectBtn">New Project</button>
+                    
+                    <div class="projects-grid">
+                        <div class="project-card">
+                            <div class="project-header">
+                                <h3 class="project-title">Website Redesign</h3>
+                                <div class="project-status status-progress">In Progress</div>
+                            </div>
+                            <p>Redesign of company website with improved UX and modern design system</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-70"></div>
+                            </div>
+                            <div class="project-dates">
+                                <div>Start: Jun 15, 2023</div>
+                                <div>End: Sep 30, 2023</div>
+                            </div>
+                        </div>
+                        <div class="project-card">
+                            <div class="project-header">
+                                <h3 class="project-title">Mobile App Development</h3>
+                                <div class="project-status status-planning">Planning</div>
+                            </div>
+                            <p>Development of a cross-platform mobile application for customer engagement</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-45"></div>
+                            </div>
+                            <div class="project-dates">
+                                <div>Start: Aug 1, 2023</div>
+                                <div>End: Dec 15, 2023</div>
+                            </div>
+                        </div>
+                        <div class="project-card">
+                            <div class="project-header">
+                                <h3 class="project-title">Q3 Marketing Campaign</h3>
+                                <div class="project-status status-completed">Completed</div>
+                            </div>
+                            <p>Summer marketing initiative to increase brand awareness and leads</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-90"></div>
+                            </div>
+                            <div class="project-dates">
+                                <div>Start: May 1, 2023</div>
+                                <div>End: Jul 31, 2023</div>
+                            </div>
+                        </div>
+                        <div class="project-card">
+                            <div class="project-header">
+                                <h3 class="project-title">Product Launch</h3>
+                                <div class="project-status status-progress">In Progress</div>
+                            </div>
+                            <p>Launch of new product line with marketing and distribution strategy</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill progress-30"></div>
+                            </div>
+                            <div class="project-dates">
+                                <div>Start: Jul 1, 2023</div>
+                                <div>End: Nov 15, 2023</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Recent Activity -->
-            <h2 class="section-title">Recent Activity</h2>
-            <div class="activity-list">
-                <div class="activity-item">
-                    <div class="activity-icon">✅</div>
-                    <div class="activity-content">
-                        <div class="activity-title">Task completed: Create wireframes for dashboard</div>
-                        <div class="activity-time">2 hours ago • by Michael Chen</div>
+            <!-- Tasks Page -->
+            <div class="page-content" id="tasks">
+                <div class="card">
+                    <h2 class="section-title">Task Management</h2>
+                    <button class="btn btn-primary" id="newTaskBtn">New Task</button>
+                    
+                    <div class="activity-list">
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox">
+                            <div class="task-content">
+                                <div class="task-title">Create wireframes for dashboard</div>
+                                <div class="task-due">Due: Today • Website Redesign project</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox" checked>
+                            <div class="task-content">
+                                <div class="task-title">Finalize Q3 marketing budget</div>
+                                <div class="task-due">Completed • Q3 Marketing Campaign</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox">
+                            <div class="task-content">
+                                <div class="task-title">Review API documentation</div>
+                                <div class="task-due">Due: Tomorrow • Mobile App Development</div>
+                            </div>
+                        </div>
+                        <div class="task-item">
+                            <input type="checkbox" class="task-checkbox">
+                            <div class="task-content">
+                                <div class="task-title">Schedule user testing sessions</div>
+                                <div class="task-due">Due: Aug 15 • Website Redesign project</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-icon">📝</div>
-                    <div class="activity-content">
-                        <div class="activity-title">New comment on Website Redesign project</div>
-                        <div class="activity-time">5 hours ago • by Sarah Johnson</div>
+            </div>
+
+            <!-- Timeline Page -->
+            <div class="page-content" id="timeline">
+                <div class="card">
+                    <h2 class="section-title">Project Timeline</h2>
+                    <div class="chart-container">
+                        <canvas id="ganttChart"></canvas>
                     </div>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-icon">⚠️</div>
-                    <div class="activity-content">
-                        <div class="activity-title">Risk identified: Potential delay in API integration</div>
-                        <div class="activity-time">Yesterday • by David Wilson</div>
+            </div>
+
+            <!-- Risks Page -->
+            <div class="page-content" id="risks">
+                <div class="card">
+                    <h2 class="section-title">Risk Management</h2>
+                    <button class="btn btn-primary" id="newRiskBtn">New Risk</button>
+                    
+                    <h3 class="section-title" style="margin-top: 2rem;">Risk Matrix</h3>
+                    <div class="risk-matrix">
+                        <div class="risk-cell risk-low">Low Impact<br>Low Probability</div>
+                        <div class="risk-cell risk-low">Low Impact<br>Medium Probability</div>
+                        <div class="risk-cell risk-medium">Low Impact<br>High Probability</div>
+                        <div class="risk-cell risk-low">Medium Impact<br>Low Probability</div>
+                        <div class="risk-cell risk-medium">Medium Impact<br>Medium Probability</div>
+                        <div class="risk-cell risk-high">Medium Impact<br>High Probability</div>
+                        <div class="risk-cell risk-medium">High Impact<br>Low Probability</div>
+                        <div class="risk-cell risk-high">High Impact<br>Medium Probability</div>
+                        <div class="risk-cell risk-high">High Impact<br>High Probability</div>
+                    </div>
+                    
+                    <h3 class="section-title" style="margin-top: 2rem;">Identified Risks</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="activity-icon">⚠️</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Potential delay in API integration</div>
+                                <div class="activity-time">Impact: High • Probability: Medium • Mobile App Development</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">⚠️</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Budget overrun on design resources</div>
+                                <div class="activity-time">Impact: Medium • Probability: Low • Website Redesign project</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon">⚠️</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Key team member availability</div>
+                                <div class="activity-time">Impact: High • Probability: Low • Product Launch</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="activity-item">
-                    <div class="activity-icon">📊</div>
-                    <div class="activity-content">
-                        <div class="activity-title">Progress report generated for Q3 Marketing Campaign</div>
-                        <div class="activity-time">2 days ago • System</div>
+            </div>
+
+            <!-- Team Page -->
+            <div class="page-content" id="team">
+                <div class="card">
+                    <h2 class="section-title">Team Management</h2>
+                    
+                    <div class="dashboard-grid">
+                        <div class="card stat-card">
+                            <div class="stat-label">Team Members</div>
+                            <div class="stat-value">8</div>
+                            <div class="stat-change positive">+1 from last month ↗</div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="stat-label">Available Capacity</div>
+                            <div class="stat-value">78%</div>
+                            <div class="stat-change negative">-5% from last week ↘</div>
+                        </div>
+                        <div class="card stat-card">
+                            <div class="stat-label">Active Assignments</div>
+                            <div class="stat-value">42</div>
+                            <div class="stat-change positive">+3 from last week ↗</div>
+                        </div>
                     </div>
+                    
+                    <h3 class="section-title" style="margin-top: 2rem;">Team Members</h3>
+                    <div class="activity-list">
+                        <div class="activity-item">
+                            <div class="avatar">A</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Alex Johnson • Project Manager</div>
+                                <div class="activity-time">Assigned to: Website Redesign, Product Launch</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="avatar">S</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Sarah Chen • UX Designer</div>
+                                <div class="activity-time">Assigned to: Website Redesign, Mobile App Development</div>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="avatar">M</div>
+                            <div class="activity-content">
+                                <div class="activity-title">Michael Wilson • Developer</div>
+                                <div class="activity-time">Assigned to: Mobile App Development, API Integration</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div class="page-content" id="settings">
+                <div class="card">
+                    <h2 class="section-title">Settings</h2>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Workspace Name</label>
+                        <input type="text" class="form-input" value="NexusPM Workspace">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Timezone</label>
+                        <select class="form-input">
+                            <option>(GMT-08:00) Pacific Time</option>
+                            <option>(GMT-07:00) Mountain Time</option>
+                            <option selected>(GMT-05:00) Eastern Time</option>
+                            <option>(GMT) Greenwich Mean Time</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Notification Preferences</label>
+                        <div>
+                            <input type="checkbox" id="email-notifications" checked>
+                            <label for="email-notifications">Email Notifications</label>
+                        </div>
+                        <div>
+                            <input type="checkbox" id="desktop-notifications" checked>
+                            <label for="desktop-notifications">Desktop Notifications</label>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary">Save Settings</button>
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- New Project Modal -->
+    <div class="modal" id="projectModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Project</h2>
+                <button class="modal-close" id="closeProjectModal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Project Name</label>
+                <input type="text" class="form-input" placeholder="Enter project name">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-input" placeholder="Project description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Start Date</label>
+                <input type="date" class="form-input">
+            </div>
+            <div class="form-group">
+                <label class="form-label">End Date</label>
+                <input type="date" class="form-input">
+            </div>
+            <button class="btn btn-primary">Create Project</button>
+        </div>
+    </div>
+
+    <!-- New Task Modal -->
+    <div class="modal" id="taskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Create New Task</h2>
+                <button class="modal-close" id="closeTaskModal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Task Name</label>
+                <input type="text" class="form-input" placeholder="Enter task name">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-input" placeholder="Task description" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Assigned To</label>
+                <select class="form-input">
+                    <option>Alex Johnson</option>
+                    <option>Sarah Chen</option>
+                    <option>Michael Wilson</option>
+                    <option>David Miller</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Due Date</label>
+                <input type="date" class="form-input">
+            </div>
+            <button class="btn btn-primary">Create Task</button>
+        </div>
+    </div>
+
+    <!-- New Risk Modal -->
+    <div class="modal" id="riskModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Identify New Risk</h2>
+                <button class="modal-close" id="closeRiskModal">&times;</button>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Risk Description</label>
+                <input type="text" class="form-input" placeholder="Describe the risk">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Impact</label>
+                <select class="form-input">
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Probability</label>
+                <select class="form-input">
+                    <option>Low</option>
+                    <option>Medium</option>
+                    <option>High</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Mitigation Strategy</label>
+                <textarea class="form-input" placeholder="How will you mitigate this risk?" rows="3"></textarea>
+            </div>
+            <button class="btn btn-primary">Add Risk</button>
+        </div>
     </div>
 
     <script>
@@ -625,12 +1151,190 @@
                 }
             });
 
-            // Add interactivity to navigation items
+            // Gantt Chart for Timeline page
+            const ganttCtx = document.getElementById('ganttChart').getContext('2d');
+            const ganttChart = new Chart(ganttCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Planning', 'Design', 'Development', 'Testing', 'Deployment'],
+                    datasets: [
+                        {
+                            label: 'Website Redesign',
+                            data: [20, 30, 40, 10, 15],
+                            backgroundColor: 'rgba(59, 130, 246, 0.8)',
+                            borderColor: 'rgb(59, 130, 246)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Mobile App',
+                            data: [30, 20, 35, 15, 10],
+                            backgroundColor: 'rgba(245, 158, 11, 0.8)',
+                            borderColor: 'rgb(245, 158, 11)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Product Launch',
+                            data: [25, 15, 30, 20, 25],
+                            backgroundColor: 'rgba(16, 185, 129, 0.8)',
+                            borderColor: 'rgb(16, 185, 129)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Project Timeline by Phase'
+                        }
+                    },
+                    scales: {
+                        x: {
+                            stacked: true,
+                            title: {
+                                display: true,
+                                text: 'Days'
+                            }
+                        },
+                        y: {
+                            stacked: true
+                        }
+                    }
+                }
+            });
+
+            // Page navigation
             const navItems = document.querySelectorAll('.nav-item');
+            const pageContents = document.querySelectorAll('.page-content');
+            const pageTitle = document.getElementById('pageTitle');
+
+            // Function to change page
+            function changePage(pageId) {
+                // Remove active class from all items
+                navItems.forEach(nav => nav.classList.remove('active'));
+                pageContents.forEach(page => page.classList.remove('active'));
+                
+                // Add active class to clicked item
+                document.querySelector(`[data-page="${pageId}"]`).classList.add('active');
+                
+                // Show corresponding page content
+                document.getElementById(pageId).classList.add('active');
+                
+                // Update page title
+                const pageName = document.querySelector(`[data-page="${pageId}"]`).textContent.trim();
+                pageTitle.textContent = pageName + (pageId !== 'dashboard' ? ' Management' : '');
+                
+                // Close mobile menu if open
+                if (window.innerWidth <= 768) {
+                    document.getElementById('sidebar').classList.remove('active');
+                }
+            }
+
+            // Add click event to all navigation items
             navItems.forEach(item => {
-                item.addEventListener('click', function() {
-                    navItems.forEach(nav => nav.classList.remove('active'));
-                    this.classList.add('active');
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const pageId = this.getAttribute('data-page');
+                    changePage(pageId);
+                    
+                    // Update URL hash
+                    window.location.hash = pageId;
+                });
+            });
+
+            // Check URL hash on page load
+            if (window.location.hash) {
+                const pageId = window.location.hash.substring(1);
+                if (document.getElementById(pageId)) {
+                    changePage(pageId);
+                }
+            }
+
+            // Modal functionality
+            const projectModal = document.getElementById('projectModal');
+            const taskModal = document.getElementById('taskModal');
+            const riskModal = document.getElementById('riskModal');
+            
+            const newProjectBtn = document.getElementById('newProjectBtn');
+            const newTaskBtn = document.getElementById('newTaskBtn');
+            const newRiskBtn = document.getElementById('newRiskBtn');
+            
+            const closeProjectModal = document.getElementById('closeProjectModal');
+            const closeTaskModal = document.getElementById('closeTaskModal');
+            const closeRiskModal = document.getElementById('closeRiskModal');
+            
+            // Open modals
+            if (newProjectBtn) {
+                newProjectBtn.addEventListener('click', () => projectModal.classList.add('active'));
+            }
+            
+            if (newTaskBtn) {
+                newTaskBtn.addEventListener('click', () => taskModal.classList.add('active'));
+            }
+            
+            if (newRiskBtn) {
+                newRiskBtn.addEventListener('click', () => riskModal.classList.add('active'));
+            }
+            
+            // Close modals
+            if (closeProjectModal) {
+                closeProjectModal.addEventListener('click', () => projectModal.classList.remove('active'));
+            }
+            
+            if (closeTaskModal) {
+                closeTaskModal.addEventListener('click', () => taskModal.classList.remove('active'));
+            }
+            
+            if (closeRiskModal) {
+                closeRiskModal.addEventListener('click', () => riskModal.classList.remove('active'));
+            }
+            
+            // Close modals when clicking outside
+            window.addEventListener('click', (e) => {
+                if (e.target === projectModal) projectModal.classList.remove('active');
+                if (e.target === taskModal) taskModal.classList.remove('active');
+                if (e.target === riskModal) riskModal.classList.remove('active');
+            });
+
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menuToggle');
+            const sidebar = document.getElementById('sidebar');
+            
+            if (menuToggle) {
+                menuToggle.addEventListener('click', () => {
+                    sidebar.classList.toggle('active');
+                });
+            }
+
+            // Project card click event
+            const projectCards = document.querySelectorAll('.project-card');
+            projectCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    const projectId = card.getAttribute('data-project');
+                    alert(`You clicked on the ${projectId.replace('-', ' ')} project. This would open a detailed view in a complete application.`);
+                });
+            });
+
+            // Task checkbox functionality
+            const taskCheckboxes = document.querySelectorAll('.task-checkbox');
+            taskCheckboxes.forEach(checkbox => {
+                // Set initial state
+                const taskTitle = checkbox.parentElement.querySelector('.task-title');
+                if (checkbox.checked) {
+                    taskTitle.style.textDecoration = 'line-through';
+                    taskTitle.style.color = 'var(--text-light)';
+                }
+                
+                // Add change event
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        taskTitle.style.textDecoration = 'line-through';
+                        taskTitle.style.color = 'var(--text-light)';
+                    } else {
+                        taskTitle.style.textDecoration = 'none';
+                        taskTitle.style.color = 'inherit';
+                    }
                 });
             });
         });
