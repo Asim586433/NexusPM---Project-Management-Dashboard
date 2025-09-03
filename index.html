@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexusPM - Project Management Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #3B82F6;
+            --primary-dark: #2563EB;
+            --secondary: #10B981;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --background: #F9FAFB;
+            --surface: #FFFFFF;
+            --border: #E5E7EB;
+            --text-primary: #374151;
+            --text-secondary: #6B7280;
+            --text-light: #9CA3AF;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 8px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            background-color: var(--surface);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            position: fixed;
+            width: 250px;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo-icon {
+            background-color: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            font-weight: 700;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            margin-bottom: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-secondary);
+        }
+
+        .nav-item:hover {
+            background-color: var(--background);
+            color: var(--primary);
+        }
+
+        .nav-item.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .nav-icon {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            grid-column: 2;
+            padding: 2rem;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-left: 1rem;
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background-color: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .stat-change {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .positive {
+            color: var(--secondary);
+        }
+
+        .negative {
+            color: var(--danger);
+        }
+
+        /* Project Section */
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .project-card {
+            background-color: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+            transition: transform 0.2s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .project-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .project-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .status-completed {
+            background-color: #ECFDF5;
+            color: var(--secondary);
+        }
+
+        .status-progress {
+            background-color: #FEF3C7;
+            color: var(--warning);
+        }
+
+        .status-planning {
+            background-color: #EFF6FF;
+            color: var(--primary);
+        }
+
+        .progress-bar {
+            height: 8px;
+            background-color: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        .progress-70 {
+            width: 70%;
+            background-color: var(--primary);
+        }
+
+        .progress-45 {
+            width: 45%;
+            background-color: var(--warning);
+        }
+
+        .progress-90 {
+            width: 90%;
+            background-color: var(--secondary);
+        }
+
+        .project-dates {
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Charts Section */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+
+        /* Recent Activity */
+        .activity-list {
+            background-color: var(--surface);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 1.5rem;
+        }
+
+        .activity-item {
+            display: flex;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--background);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--primary);
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 500;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .main-content {
+                grid-column: 1;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .charts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">N</div>
+                <div class="logo-text">NexusPM</div>
+            </div>
+            
+            <div class="nav-item active">
+                <div class="nav-icon">📊</div>
+                <div>Dashboard</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📅</div>
+                <div>Projects</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">✅</div>
+                <div>Tasks</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">📈</div>
+                <div>Timeline</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">⚠️</div>
+                <div>Risks</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">👥</div>
+                <div>Team</div>
+            </div>
+            <div class="nav-item">
+                <div class="nav-icon">⚙️</div>
+                <div>Settings</div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="header">
+                <h1 class="page-title">Project Dashboard</h1>
+                <div class="user-profile">
+                    <div>Hello, Alex</div>
+                    <div class="avatar">A</div>
+                </div>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="dashboard-grid">
+                <div class="card stat-card">
+                    <div class="stat-label">Active Projects</div>
+                    <div class="stat-value">12</div>
+                    <div class="stat-change positive">+2 from last week ↗</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-label">Completed Tasks</div>
+                    <div class="stat-value">84</div>
+                    <div class="stat-change positive">+12% from last week ↗</div>
+                </div>
+                <div class="card stat-card">
+                    <div class="stat-label">Team Capacity</div>
+                    <div class="stat-value">78%</div>
+                    <div class="stat-change negative">-5% from last week ↘</div>
+                </div>
+            </div>
+
+            <!-- Projects Section -->
+            <h2 class="section-title">Recent Projects</h2>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3 class="project-title">Website Redesign</h3>
+                        <div class="project-status status-progress">In Progress</div>
+                    </div>
+                    <p>Redesign of company website with improved UX and modern design system</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-70"></div>
+                    </div>
+                    <div class="project-dates">
+                        <div>Start: Jun 15, 2023</div>
+                        <div>End: Sep 30, 2023</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3 class="project-title">Mobile App Development</h3>
+                        <div class="project-status status-planning">Planning</div>
+                    </div>
+                    <p>Development of a cross-platform mobile application for customer engagement</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-45"></div>
+                    </div>
+                    <div class="project-dates">
+                        <div>Start: Aug 1, 2023</div>
+                        <div>End: Dec 15, 2023</div>
+                    </div>
+                </div>
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3 class="project-title">Q3 Marketing Campaign</h3>
+                        <div class="project-status status-completed">Completed</div>
+                    </div>
+                    <p>Summer marketing initiative to increase brand awareness and leads</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill progress-90"></div>
+                    </div>
+                    <div class="project-dates">
+                        <div>Start: May 1, 2023</div>
+                        <div>End: Jul 31, 2023</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <h2 class="section-title">Project Analytics</h2>
+            <div class="charts-grid">
+                <div class="card">
+                    <h3>Project Timeline</h3>
+                    <div class="chart-container">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Risk Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="riskChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <h2 class="section-title">Recent Activity</h2>
+            <div class="activity-list">
+                <div class="activity-item">
+                    <div class="activity-icon">✅</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Task completed: Create wireframes for dashboard</div>
+                        <div class="activity-time">2 hours ago • by Michael Chen</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">📝</div>
+                    <div class="activity-content">
+                        <div class="activity-title">New comment on Website Redesign project</div>
+                        <div class="activity-time">5 hours ago • by Sarah Johnson</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">⚠️</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Risk identified: Potential delay in API integration</div>
+                        <div class="activity-time">Yesterday • by David Wilson</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">📊</div>
+                    <div class="activity-content">
+                        <div class="activity-title">Progress report generated for Q3 Marketing Campaign</div>
+                        <div class="activity-time">2 days ago • System</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Initialize charts when the page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            // Timeline Chart (Gantt style)
+            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+            const timelineChart = new Chart(timelineCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Website Redesign', 'Mobile App', 'Marketing Campaign', 'Product Launch', 'Internal Training'],
+                    datasets: [{
+                        label: 'Progress',
+                        data: [70, 45, 90, 30, 60],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(16, 185, 129, 0.8)',
+                            'rgba(99, 102, 241, 0.8)',
+                            'rgba(139, 92, 246, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(245, 158, 11)',
+                            'rgb(16, 185, 129)',
+                            'rgb(99, 102, 241)',
+                            'rgb(139, 92, 246)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 4,
+                        barPercentage: 0.6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Project Progress'
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Risk Distribution Chart
+            const riskCtx = document.getElementById('riskChart').getContext('2d');
+            const riskChart = new Chart(riskCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['High', 'Medium', 'Low', 'Resolved'],
+                    datasets: [{
+                        data: [2, 5, 8, 12],
+                        backgroundColor: [
+                            'rgba(239, 68, 68, 0.8)',
+                            'rgba(245, 158, 11, 0.8)',
+                            'rgba(59, 130, 246, 0.8)',
+                            'rgba(16, 185, 129, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgb(239, 68, 68)',
+                            'rgb(245, 158, 11)',
+                            'rgb(59, 130, 246)',
+                            'rgb(16, 185, 129)'
+                        ],
+                        borderWidth: 1,
+                        hoverOffset: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        }
+                    }
+                }
+            });
+
+            // Add interactivity to navigation items
+            const navItems = document.querySelectorAll('.nav-item');
+            navItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
